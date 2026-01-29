@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Marketplace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+  <h1 class="title">Mini Marketplace</h1>
+
+  <p class="cart-info">
+    🛒 Total Item di Keranjang: {{ cart.length }} <br>
+    Total Harga Item di Keranjang: Rp. {{ total_harga }}
+  </p>
+  
+  <div class="grid">
+    <product-card
+      v-for="item in products"
+      :key="item.id"
+      :product="item"
+      @add-to-cart="addToCart"
+    ></product-card>
+  </div>
+
+  <div class="grid"> Keranjang Saya
+    <keranjang-saya
+      v-for="item in cart"
+      :key="item.id"
+      :cart="item"
+      @remove-from-cart="removeFromCart"
+    ></keranjang-saya>
+  </div>
+</div>
+
+<script src="vuejs/vue.global.js"></script>
+<script>
+const ProductCard = {
+  props: ['product'],
+  template: `
+    <div class="card">
+      <h3>{{ product.name }}</h3>
+      <p class="price">Rp {{ product.price }}</p>
+      <button @click="add">Tambah ke Keranjang</button>
+    </div>
+  `,
+  methods: {
+    add() {
+      this.$emit('add-to-cart', this.product);
+    }
+  }
+}
+
+const KeranjangSaya = {
+    props: ['cart'],
+  template: `
+    <div class="card">
+      <h3>{{ cart.name }}</h3>
+      <p class="price">Rp {{ cart.price }}</p>
+      <button @click="remove">Hapus Item</button>
+    </div>
+  `,
+  methods: {
+    remove() {
+      this.$emit('remove-from-cart', this.cart);
+    }
+  }
+};
+
+Vue.createApp({
+  data() {
+    return {
+      products: [
+        { id: 1, name: 'Laptop', price: 7500000 },
+        { id: 2, name: 'Mouse', price: 150000 },
+        { id: 3, name: 'Keyboard', price: 300000 }
+      ],
+      cart: [],
+      total_harga: 0
+    }
+  },
+  methods: {
+    addToCart(product) {
+      this.cart.push(product);
+      this.updateTotal();
+    },
+    removeFromCart(product) {
+      const index = this.cart.indexOf(product);
+      if (index > -1) {
+        this.cart.splice(index, 1);
+      }
+      this.updateTotal();
+    },
+    updateTotal() {
+      this.total_harga = 0;
+      for(let i=0; i<this.cart.length; i++) {
+        this.total_harga += this.cart[i].price;
+      }
+    }
+  }
+})
+.component('product-card', ProductCard)
+.component('keranjang-saya', KeranjangSaya)
+.mount('#app');
+</script>
+
+</body>
+</html>
